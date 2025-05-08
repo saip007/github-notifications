@@ -2,18 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>GitHub Notifier</title>
-  <!-- <script src="tailwind.css" ></script> -->
-  <script defer src="popup.js"></script>
+  <title>GitHub Notifications Browser Extension</title>
+  <link rel="stylesheet" href="../styles/tailwind.css" />
+  <script type="module" src="popup.js"></script>
 </head>
 <body class="bg-gray-100 w-80 p-4 text-sm font-sans">
+
   <h1 class="text-lg font-bold text-center mb-4">🔔 GitHub Notifications</h1>
 
+  <!-- Login button will be hidden in JS if already authenticated -->
   <button id="login-btn" class="bg-black text-white w-full py-2 rounded mb-4">
-    Sign in with GitHub
+    Continue with GitHub
   </button>
 
   <div id="notification-list" class="space-y-2"></div>
+
   <p id="status" class="text-center text-gray-500 mt-3 text-xs"></p>
+
 </body>
 </html>
