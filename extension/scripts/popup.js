@@ -1,5 +1,3 @@
-// popup.js
-
 import { decrypt, getKey } from "./crypto-utils.js";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -7,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const status = document.getElementById("status");
   const list = document.getElementById("notification-list");
 
-  // 🧠 GitHub login flow (delegated to background.js)
+  // GitHub login trigger
   loginBtn.addEventListener("click", () => {
     status.textContent = "🔄 Authenticating with GitHub...";
     chrome.runtime.sendMessage({ action: "start-oauth" }, async (response) => {
@@ -22,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 🔐 Attempt decryption + fetch on load
+  // Try to use existing token on load
   (async () => {
     const { encryptedToken } = await chrome.storage.local.get("encryptedToken");
     if (!encryptedToken) {
@@ -49,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   })();
 
-  // 📥 Fetch notifications from GitHub API
+  // Fetch GitHub notifications and render
   async function fetchNotifications(token) {
     try {
       const res = await fetch("https://api.github.com/notifications", {
@@ -77,14 +75,36 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      status.textContent = ""; // Clear status
+      status.textContent = "";
+
       notifications.forEach((n) => {
         const item = document.createElement("div");
-        item.className = "bg-white p-2 rounded shadow";
+        item.className = "notification bg-white p-2 rounded shadow";
+
+        // 🔁 Convert API URL to GitHub web URL
+        let webUrl = "#";
+        if (n.subject.url) {
+          webUrl = n.subject.url
+            .replace("api.github.com/repos", "github.com")
+            .replace("/pulls/", "/pull/")
+            .replace("/issues/", "/issues/")
+            .replace("/commits/", "/commit/");
+        }
+
+        // 🧩 Add type icon
+        let typeIcon = "🔔";
+        switch (n.subject.type) {
+          case "PullRequest": typeIcon = "🔃"; break;
+          case "Issue":       typeIcon = "🐞"; break;
+          case "Commit":      typeIcon = "📦"; break;
+          case "Release":     typeIcon = "🏁"; break;
+        }
+
         item.innerHTML = `
-          <strong>${n.repository.full_name}</strong><br/>
-          <span>${n.subject.title}</span>
+          <strong>${typeIcon} ${n.repository.full_name}</strong><br/>
+          <a href="${webUrl}" target="_blank" rel="noopener noreferrer">${n.subject.title}</a>
         `;
+
         list.appendChild(item);
       });
     } catch (err) {
