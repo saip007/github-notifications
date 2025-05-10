@@ -1,4 +1,4 @@
-import { generateKey, encrypt } from "./crypto-utils.js";
+import { generateKey, encrypt, decrypt } from "./crypto-utils.js";
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === "start-oauth") {
@@ -36,5 +36,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     });
 
     return true;
+  }
+
+  // Additional message listener for sign out (to clear the token)
+  if (msg.action === "signout") {
+    chrome.storage.local.remove("encryptedToken", () => {
+      chrome.storage.session.remove("githubCryptoKey", () => {
+        sendResponse({ success: true });
+      });
+    });
+
+    return true; // Async operation response
   }
 });

@@ -2,35 +2,63 @@ import { decrypt, getKey } from "./crypto-utils.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const loginBtn = document.getElementById("login-btn");
+  const signoutBtn = document.getElementById("signout-btn"); // sign-out button
   const status = document.getElementById("status");
   const list = document.getElementById("notification-list");
 
-  // GitHub login trigger
+  // Show the sign-out button if already logged in
+  async function checkLoginStatus() {
+    const { encryptedToken } = await chrome.storage.local.get("encryptedToken");
+    if (encryptedToken) {
+      loginBtn.style.display = "none";
+      signoutBtn.style.display = "block";  // Show sign-out button
+    } else {
+      loginBtn.style.display = "block";
+      signoutBtn.style.display = "none";  // Hide sign-out button
+    }
+  }
+
+  // 🧠 GitHub login flow (delegated to background.js)
   loginBtn.addEventListener("click", () => {
     status.textContent = "🔄 Authenticating with GitHub...";
     chrome.runtime.sendMessage({ action: "start-oauth" }, async (response) => {
       if (response?.success && response.token) {
         loginBtn.style.display = "none";
+        signoutBtn.style.display = "block";
         status.textContent = "✅ Logged in! Fetching notifications...";
         fetchNotifications(response.token);
       } else {
         loginBtn.style.display = "block";
+        signoutBtn.style.display = "none";
         status.textContent = "❌ Login failed.";
       }
     });
   });
 
-  // Try to use existing token on load
+  // Sign out logic
+  signoutBtn.addEventListener("click", () => {
+    chrome.storage.local.remove("encryptedToken", () => {
+      chrome.storage.session.remove("githubCryptoKey", () => {
+        loginBtn.style.display = "block";
+        signoutBtn.style.display = "none";
+        status.textContent = "🔐 Signed out successfully.";
+        list.innerHTML = "";
+      });
+    });
+  });
+
+  // 🔐 Try to use existing token on load
   (async () => {
+    await checkLoginStatus();  // Check if already logged in
     const { encryptedToken } = await chrome.storage.local.get("encryptedToken");
     if (!encryptedToken) {
-      loginBtn.style.display = "block";
       return;
     }
 
     const key = await getKey();
     if (!key) {
       loginBtn.style.display = "block";
+      signoutBtn.style.display = "none";
       status.textContent = "🔐 Login session expired.";
       return;
     }
@@ -38,16 +66,18 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const token = await decrypt(encryptedToken, key);
       loginBtn.style.display = "none";
+      signoutBtn.style.display = "block";
       status.textContent = "📡 Fetching notifications...";
       fetchNotifications(token);
     } catch (err) {
       console.error("Decryption failed:", err);
       loginBtn.style.display = "block";
+      signoutBtn.style.display = "none";
       status.textContent = "⚠️ Decryption failed.";
     }
   })();
 
-  // Fetch GitHub notifications and render
+  // 📥 Fetch GitHub notifications and render
   async function fetchNotifications(token) {
     try {
       const res = await fetch("https://api.github.com/notifications", {
@@ -59,6 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
           console.warn("Access token expired or revoked.");
           status.textContent = "🔐 Token expired. Please login again.";
           loginBtn.style.display = "block";
+          signoutBtn.style.display = "none";
           await chrome.storage.local.remove("encryptedToken");
           await chrome.storage.session.remove("githubCryptoKey");
         } else {
@@ -82,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
         item.className = "notification bg-white p-2 rounded shadow";
 
         // 🔁 Convert API URL to GitHub web URL
-        let webUrl = "#";
+        let webUrl = "https://github.com/notifications";
         if (n.subject.url) {
           webUrl = n.subject.url
             .replace("api.github.com/repos", "github.com")
@@ -110,6 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error("Fetch error:", err);
       loginBtn.style.display = "block";
+      signoutBtn.style.display = "none";
       status.textContent = "❌ Error fetching notifications.";
     }
   }
