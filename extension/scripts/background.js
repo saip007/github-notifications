@@ -38,7 +38,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
-  // Additional message listener for sign out (to clear the token)
   if (msg.action === "signout") {
     chrome.storage.local.remove("encryptedToken", () => {
       chrome.storage.session.remove("githubCryptoKey", () => {
@@ -46,6 +45,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       });
     });
 
-    return true; // Async operation response
+    return true; 
   }
 });

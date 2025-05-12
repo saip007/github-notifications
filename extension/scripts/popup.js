@@ -2,23 +2,21 @@ import { decrypt, getKey } from "./crypto-utils.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const loginBtn = document.getElementById("login-btn");
-  const signoutBtn = document.getElementById("signout-btn"); // sign-out button
+  const signoutBtn = document.getElementById("signout-btn"); 
   const status = document.getElementById("status");
   const list = document.getElementById("notification-list");
 
-  // Show the sign-out button if already logged in
   async function checkLoginStatus() {
     const { encryptedToken } = await chrome.storage.local.get("encryptedToken");
     if (encryptedToken) {
       loginBtn.style.display = "none";
-      signoutBtn.style.display = "block";  // Show sign-out button
+      signoutBtn.style.display = "block";  
     } else {
       loginBtn.style.display = "block";
-      signoutBtn.style.display = "none";  // Hide sign-out button
+      signoutBtn.style.display = "none"; 
     }
   }
 
-  // 🧠 GitHub login flow (delegated to background.js)
   loginBtn.addEventListener("click", () => {
     status.textContent = "🔄 Authenticating with GitHub...";
     chrome.runtime.sendMessage({ action: "start-oauth" }, async (response) => {
@@ -35,7 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Sign out logic
   signoutBtn.addEventListener("click", () => {
     chrome.storage.local.remove("encryptedToken", () => {
       chrome.storage.session.remove("githubCryptoKey", () => {
@@ -47,9 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 🔐 Try to use existing token on load
   (async () => {
-    await checkLoginStatus();  // Check if already logged in
+    await checkLoginStatus(); 
     const { encryptedToken } = await chrome.storage.local.get("encryptedToken");
     if (!encryptedToken) {
       return;
@@ -77,7 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   })();
 
-  // 📥 Fetch GitHub notifications and render
   async function fetchNotifications(token) {
     try {
       const res = await fetch("https://api.github.com/notifications", {
@@ -112,7 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const item = document.createElement("div");
         item.className = "notification bg-white p-2 rounded shadow";
 
-        // 🔁 Convert API URL to GitHub web URL
         let webUrl = "https://github.com/notifications";
         if (n.subject.url) {
           webUrl = n.subject.url
@@ -122,7 +116,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .replace("/commits/", "/commit/");
         }
 
-        // 🧩 Add type icon
         let typeIcon = "🔔";
         switch (n.subject.type) {
           case "PullRequest": typeIcon = "🔃"; break;
