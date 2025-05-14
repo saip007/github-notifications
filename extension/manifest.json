@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "GitHub Notifications Browser Extension",
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "Provides one-click access to GitHub notifications in a browser popup.",
   "icons": {
     "48": "icons/icon_48.png",
@@ -9,11 +9,10 @@
   },
   "permissions": [
     "storage",
-    "identity",
-    "scripting"
+    "identity"
   ],
   "host_permissions": [
-    "https://api.github.com/",
+    "https://api.github.com/notifications",
     "https://service.saiprashanth0528.workers.dev/"
   ],
   "background": {
@@ -30,8 +29,7 @@
   "oauth2": {
     "client_id": "Ov23liiB4QYeeqkkv09r",
     "scopes": [
-      "notifications",
-      "read:user"
+      "notifications"
     ]
   }
 }
