@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>GitHub Notifications Browser Extension</title>
-    <link rel="stylesheet" href="../styles/tailwind.css" />
+    <!-- <link rel="stylesheet" href="../styles/tailwind.css" /> -->
     <link rel="stylesheet" href="../styles/style.css" />
     <script type="module" src="../scripts/popup.js"></script>
 </head>
@@ -14,7 +14,16 @@
     <button id="login-btn" class="bg-black text-white w-full py-2 rounded mb-4">
         Continue with GitHub
     </button>
-    <div id="notification-list" class="space-y-2"></div>
+    <div id="notification-list" class="space-y-2">
+        <!-- <div class="notification bg-white p-2 rounded shadow">
+          <strong>🔔 saip007/blogs</strong><br>
+          <a href="https://github.com/notifications" target="_blank" rel="noopener noreferrer">pages build and deployment workflow run cancelled for main branch</a>
+        </div>
+        <div class="notification bg-white p-2 rounded shadow">
+          <strong>🔔 saip007/blogs</strong><br>
+          <a href="https://github.com/notifications" target="_blank" rel="noopener noreferrer">pages build and deployment workflow run cancelled for main branch</a>
+        </div> -->
+    </div>
     <p id="status" class="text-center text-gray-500 mt-3 text-xs"></p>
     <button id="signout-btn" class="bg-red-600 text-white w-full py-2 rounded mb-4 hidden">
         Sign Out
