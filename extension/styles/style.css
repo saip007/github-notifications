@@ -2,8 +2,6 @@
 
 body {
   font-family:Roboto, sans-serif;
-  background-color: gainsboro;
-  color: #24292f;
   padding: 2px;
   margin: 0;
   width: 480px;
@@ -11,14 +9,11 @@ body {
   font-size: 14px;
 }
 .top-header {
-  color: red;
   display: flex;
   align-items: center;            
   width: 100%;
-  margin-bottom: 20px;               /* override any mb-4 */
 }
 
-/* Title takes up all remaining space */
 .top-header > h1 {
   flex: 1;                        /* grow to fill */
   display: flex;                  
@@ -94,4 +89,13 @@ button:hover {
 
 #signout-btn:hover {
   background-color: #c62828;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.footer a {
+  text-decoration: none;
 }
