@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "GitHub Notifications Browser Extension",
+  "name": "GitHub Notifications",
   "version": "1.0.1",
   "description": "Provides one-click access to GitHub notifications in a browser popup.",
   "icons": {

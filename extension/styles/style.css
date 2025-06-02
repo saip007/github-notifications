@@ -2,20 +2,34 @@
 
 body {
   font-family:Roboto, sans-serif;
-  background-color: #f6f8fa;
-  color: #24292f;
   padding: 2px;
   margin: 0;
-  width: 320px;
-  height: 100vh;
+  width: 480px;
+  height: 100%;
   font-size: 14px;
 }
+.top-header {
+  display: flex;
+  align-items: center;            
+  width: 100%;
+}
 
-h1 {
-  font-size: 25px;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 16px;
+.top-header > h1 {
+  flex: 1;                        /* grow to fill */
+  display: flex;                  
+  justify-content: center;        /* horizontal centering */
+  align-items: center;            /* vertical centering */
+}
+
+/* Refresh button fixed at ~15% */
+.top-header > .refresh-button {
+  flex: 0 0 10%;                  /* don’t grow or shrink, basis = 15% */
+  display: flex;
+  justify-content: center;        /* center the arrow */
+  align-items: center;
+  cursor: pointer;
+  font-size: 1.5rem;
+  /*user-select: none;*/
 }
 
 button {
@@ -75,4 +89,13 @@ button:hover {
 
 #signout-btn:hover {
   background-color: #c62828;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.footer a {
+  text-decoration: none;
 }
