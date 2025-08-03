@@ -2,8 +2,10 @@
 
 body {
   font-family:Roboto, sans-serif;
-  background-color: gainsboro;
-  color: #24292f;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
   padding: 2px;
   margin: 0;
   width: 480px;
@@ -11,14 +13,11 @@ body {
   font-size: 14px;
 }
 .top-header {
-  color: red;
   display: flex;
   align-items: center;            
   width: 100%;
-  margin-bottom: 20px;               /* override any mb-4 */
 }
 
-/* Title takes up all remaining space */
 .top-header > h1 {
   flex: 1;                        /* grow to fill */
   display: flex;                  
@@ -80,10 +79,13 @@ button:hover {
   color: #57606a;
 }
 
-
+#login-btn{
+  width: 50%;
+}
 /* Sign-out button styling */
 #signout-btn {
   background-color: #d32f2f;
+  width: 30%;
   color: white;
   padding: 10px;
   border-radius: 6px;
@@ -94,4 +96,17 @@ button:hover {
 
 #signout-btn:hover {
   background-color: #c62828;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.footer a {
+  text-decoration: none;
+}
+.seperator{
+  border:1px solid grey;
+  width:100%
 }
