@@ -2,19 +2,23 @@
 
 ## Overview
 
-The GitHub Notifications Browser Extension fetches and displays GitHub notifications directly within your browser. It provides a convenient way to stay updated on activities related to your GitHub repositories without needing to constantly visit the GitHub website.
+This project bundles a lightweight browser extension and a minimal Cloudflare Worker service.
+The extension displays your GitHub notifications from within the browser, while the worker in
+`service/` exchanges OAuth codes for access tokens so secrets never live in the extension.
+Tokens are encrypted with AES‑GCM before they are stored locally.
 
-## Status
+## Browser support
 
-- **Chrome:** TBD.
-- **Brave:** TBD.
-- **Firefox:** TBD.
+- **Chrome:** ✅
+- **Brave:** `comming soon`
+- **Firefox:** `comming soon`
 
 ## Features
 
-- **Real-time Updates:** Automatically fetches notifications from GitHub at regular intervals.
-- **Notification Display:** Shows notifications in a popup with details such as repository name, notification type (e.g., issue, pull request), and last updated timestamp.
-- **Direct Access:** Click on notifications to directly access the corresponding GitHub issue or pull request in a new tab.
+- **OAuth sign‑in:** Authenticate with GitHub through the worker service.
+- **Encrypted token storage:** Access tokens are encrypted via WebCrypto and removed on sign out.
+- **Notification display:** Presents unread notifications with icons and direct links to GitHub.
+- **Manual refresh:** Reload notifications from the popup when needed.
 
 ## Installation
 
@@ -39,11 +43,21 @@ The GitHub Notifications Browser Extension fetches and displays GitHub notificat
 
 ## Development
 
-To customize or extend the extension:
+### Extension
 
-1. Modify the source files (`manifest.json`, `background.js`, `index.html`, `scripts.js`, `style.css`) as needed.
-2. Test your changes locally.
-3. Commit your changes and push to your GitHub repository.
+1. Modify the files under `extension/` (`manifest.json`, scripts, styles and popup markup`).
+2. Load the unpacked extension in your browser for quick testing.
+
+### Service
+
+1. `cd service`
+2. Run `npx vitest --run` to execute the test suite.
+3. Use `npm run dev` to start the Cloudflare Worker locally with Wrangler.
+
+## Comming Soon
+
+- Brave and Firefox builds
+- Options for adjusting refresh intervals and notification filters
 
 ## Contribution
 
