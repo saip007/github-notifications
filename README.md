@@ -1,49 +1,64 @@
 # GitHub Notifications Browser Extension
 
 ## Overview
-
-The GitHub Notifications Browser Extension fetches and displays GitHub notifications directly within your browser. It provides a convenient way to stay updated on activities related to your GitHub repositories without needing to constantly visit the GitHub website.
+The GitHub Notifications Browser Extension surfaces your GitHub notifications in a compact popup. It uses GitHub OAuth to authenticate, fetches notifications from the GitHub API, and keeps your access token encrypted in browser storage so that only the extension can read it.
 
 ## Status
 
-- **Chrome:** TBD.
-- **Brave:** TBD.
-- **Firefox:** TBD.
+- **Chrome:** ✅ Supported
+- **Brave:** ✅ Supported
+- **Firefox:** ⚠️ _comming soon_
 
 ## Features
 
-- **Real-time Updates:** Automatically fetches notifications from GitHub at regular intervals.
-- **Notification Display:** Shows notifications in a popup with details such as repository name, notification type (e.g., issue, pull request), and last updated timestamp.
-- **Direct Access:** Click on notifications to directly access the corresponding GitHub issue or pull request in a new tab.
+- **Secure OAuth Login:** Uses a Cloudflare Worker to exchange the OAuth code for an access token and AES‑GCM to encrypt it in local storage.
+- **Real‑Time Notifications:** Fetches the latest notifications with the GitHub API and displays them with repository names and context‑specific icons.
+- **Direct Links:** Clicking a notification opens the related issue, pull request, commit, or release on GitHub in a new tab.
+- **Sign‑Out Support:** Easily revoke local credentials and clear stored keys from the extension.
+
+## Architecture
+
+The project consists of two parts:
+
+1. **Browser Extension** (Manifest V3) – background service worker, popup UI, and scripts under `extension/`.
+2. **OAuth Service** – a Cloudflare Worker located in `service/` that exchanges OAuth authorization codes for access tokens.
 
 ## Installation
 
-### Chrome
+### Extension (Chrome/Brave)
 
 1. Clone or download this repository.
-2. Open Chrome and navigate to `chrome://extensions/`.
-3. Enable "Developer mode" in the top right corner.
-4. Click on "Load unpacked" and select the extension directory.
+2. Open `chrome://extensions/` or `brave://extensions/`.
+3. Enable **Developer mode**.
+4. Click **Load unpacked** and select the `extension/` directory.
 
-### Brave
+### OAuth Service (optional)
 
-1. Clone or download this repository.
-2. Open Brave and navigate to `brave://extensions/`.
-3. Enable "Developer mode" in the top right corner.
-4. Click on "Load unpacked" and select the extension directory.
+The extension expects an endpoint that trades an OAuth code for an access token. A ready-made Cloudflare Worker is included:
+
+1. `cd service`
+2. `npm install`
+3. `npm run dev` to start a local worker or `npm run deploy` to publish it to Cloudflare.
 
 ## Usage
 
-- Click on the extension icon to view your GitHub notifications.
-- Notifications are displayed with clickable links for easy navigation to GitHub pages.
+1. Click the extension icon.
+2. Press **Sign in with GitHub** to start the OAuth flow.
+3. After authorization, your notifications appear in the popup as clickable links.
+4. Use **Sign out** to clear the encrypted token from local storage.
+
+## Privacy
+
+See [docs/privacy.md](docs/privacy.md) for details on what data is stored and how it is used.
 
 ## Development
 
-To customize or extend the extension:
+To customize or extend the project:
 
-1. Modify the source files (`manifest.json`, `background.js`, `index.html`, `scripts.js`, `style.css`) as needed.
-2. Test your changes locally.
-3. Commit your changes and push to your GitHub repository.
+1. Modify the browser extension sources in `extension/`.
+2. Adjust the Cloudflare Worker in `service/` if you need different OAuth behavior.
+3. Test your changes locally.
+4. Commit your changes and push to your GitHub repository.
 
 ## Contribution
 
@@ -61,6 +76,12 @@ Contribution Guidelines:
 - Ensure all PRs are tested and do not break existing functionality.
 
 Looking forward to your contributions during Hacktoberfest!
+
+## Comming Soon
+
+- Firefox support
+- Mark notifications as read
+- Advanced filtering options
 
 ## License
 
