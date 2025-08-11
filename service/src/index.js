@@ -50,7 +50,7 @@ export default {
       });
     } catch (err) {
       return new Response(JSON.stringify({ error: "Invalid request" }), {
-        status: 500,
+        status: 400,
         headers: { "Content-Type": "application/json" },
       });
     }
