@@ -1,52 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <title>GitHub Notifications Browser Extension</title>
-    <!-- <link rel="stylesheet" href="../styles/tailwind.css" /> -->
-    <link rel="stylesheet" href="../styles/style.css" />
-    <script type="module" src="../scripts/popup.js"></script>
+  <meta charset="UTF-8" />
+  <title>GitHub Notifications Browser Extension</title>
+  <link rel="stylesheet" href="../styles/style.css" />
+  <script type="module" src="../scripts/popup.js"></script>
 </head>
-
 <body class="bg-gray-100 w-80 p-4 text-sm font-sans">
-    <div class="top-header">
+  <div class="top-header">
     <h1 class="text-lg font-bold text-center mb-4">🔔 GitHub Notifications</h1>
     <div class="refresh-button" alt="refresh-button">⟳</div>
-    </div>
-    <p id="status" class="text-center text-gray-500 mt-3 text-xs"></p>
-    <button id="login-btn" class="bg-black text-white w-full py-2 rounded mb-4">
-        Continue with GitHub
-    </button>
-    <div id="notification-list" class="space-y-2">
-        <!-- <div class="notification bg-white p-2 rounded shadow">
-          <strong>🔔 saip007/blogs</strong><br>
-          <a href="https://github.com/notifications" target="_blank" rel="noopener noreferrer">pages build and deployment workflow run cancelled for main branch</a>
-        </div>
-        <div class="notification bg-white p-2 rounded shadow">
-          <strong>🔔 saip007/blogs</strong><br>
-          <a href="https://github.com/notifications" target="_blank" rel="noopener noreferrer">pages build and deployment workflow run cancelled for main branch</a>
-        </div> -->
-    </div>
-    <button id="signout-btn" class="bg-red-600 text-white w-full py-2 rounded mb-4 hidden">
-        Sign Out
-    </button>
-    <div class="seperator"></div>
-    <div class="footer">
-        <p class="space-x-2">
-            <a href="https://github.com/saip007/github-notifications" target="_blank" rel="noopener noreferrer">
-                📦 GitHub Repo
-            </a>
-            |
-            <a href="https://github.com/saip007/github-notifications/issues/new" target="_blank" rel="noopener noreferrer">
-                🐞 Raise an Issue
-            </a>
-            |
-            <a href="https://github.com/sponsors/saip007" target="_blank" rel="noopener noreferrer">
-                ❤️ Sponsor
-            </a>
-        </p>
-    </div>
+  </div>
+  <p id="status" class="text-center text-gray-500 mt-3 text-xs"></p>
+  <button id="login-btn" class="bg-black text-white w-full py-2 rounded mb-4">
+    Continue with GitHub
+  </button>
+  <div id="notification-list" class="space-y-2"></div>
+  <button id="signout-btn" class="bg-red-600 text-white w-full py-2 rounded mb-4 hidden">
+    Sign Out
+  </button>
+  <div class="seperator"></div>
+  <div class="footer">
+    <p class="space-x-2">
+      <a href="https://github.com/saip007/github-notifications" target="_blank" rel="noopener noreferrer">📦 GitHub Repo</a>
+      |
+      <a href="https://github.com/saip007/github-notifications/issues/new" target="_blank" rel="noopener noreferrer">🐞 Raise an Issue</a>
+      |
+      <a href="https://github.com/sponsors/saip007" target="_blank" rel="noopener noreferrer">❤️ Sponsor</a>
+    </p>
+  </div>
 </body>
-
 </html>

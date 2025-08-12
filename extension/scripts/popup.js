@@ -1,109 +1,96 @@
-import { decrypt, getKey } from "./crypto-utils.js";
+"use strict";
+
+import { decrypt, getKey, clearKey } from "./crypto-utils.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const loginBtn = document.getElementById("login-btn");
-  const signoutBtn = document.getElementById("signout-btn"); 
-  const status = document.getElementById("status");
-  const list = document.getElementById("notification-list");
+  const ui = {
+    loginBtn: document.getElementById("login-btn"),
+    signoutBtn: document.getElementById("signout-btn"),
+    status: document.getElementById("status"),
+    list: document.getElementById("notification-list"),
+  };
 
-  async function checkLoginStatus() {
+  async function updateLoginUI() {
     const { encryptedToken } = await chrome.storage.local.get("encryptedToken");
-    if (encryptedToken) {
-      loginBtn.style.display = "none";
-      signoutBtn.style.display = "block";  
-    } else {
-      loginBtn.style.display = "block";
-      signoutBtn.style.display = "none"; 
-    }
+    ui.loginBtn.style.display = encryptedToken ? "none" : "block";
+    ui.signoutBtn.style.display = encryptedToken ? "block" : "none";
   }
 
-  loginBtn.addEventListener("click", () => {
-    status.textContent = "🔄 Authenticating with GitHub...";
+  ui.loginBtn.addEventListener("click", async () => {
+    ui.status.textContent = "🔄 Authenticating with GitHub...";
     chrome.runtime.sendMessage({ action: "start-oauth" }, async (response) => {
       if (response?.success && response.token) {
-        loginBtn.style.display = "none";
-        signoutBtn.style.display = "block";
-        status.textContent = "✅ Logged in! Fetching notifications...";
+        ui.status.textContent = "✅ Logged in! Fetching notifications...";
+        await updateLoginUI();
         fetchNotifications(response.token);
       } else {
-        loginBtn.style.display = "block";
-        signoutBtn.style.display = "none";
-        status.textContent = "❌ Login failed.";
+        ui.status.textContent = "❌ Login failed.";
+        await updateLoginUI();
       }
     });
   });
 
-  signoutBtn.addEventListener("click", () => {
-    chrome.storage.local.remove("encryptedToken", () => {
-      chrome.storage.session.remove("githubCryptoKey", () => {
-        loginBtn.style.display = "block";
-        signoutBtn.style.display = "none";
-        status.textContent = "🔐 Signed out successfully.";
-        list.innerHTML = "";
-      });
-    });
+  ui.signoutBtn.addEventListener("click", async () => {
+    await chrome.storage.local.remove("encryptedToken");
+    await clearKey();
+    ui.list.innerHTML = "";
+    ui.status.textContent = "🔐 Signed out successfully.";
+    await updateLoginUI();
   });
 
   (async () => {
-    await checkLoginStatus(); 
+    await updateLoginUI();
     const { encryptedToken } = await chrome.storage.local.get("encryptedToken");
-    if (!encryptedToken) {
-      return;
-    }
+    if (!encryptedToken) return;
 
     const key = await getKey();
     if (!key) {
-      loginBtn.style.display = "block";
-      signoutBtn.style.display = "none";
-      status.textContent = "🔐 Login session expired.";
+      ui.status.textContent = "🔐 Login session expired.";
+      await updateLoginUI();
       return;
     }
 
     try {
       const token = await decrypt(encryptedToken, key);
-      loginBtn.style.display = "none";
-      signoutBtn.style.display = "block";
-      status.textContent = "📡 Fetching notifications...";
+      ui.status.textContent = "📡 Fetching notifications...";
       fetchNotifications(token);
     } catch (err) {
       console.error("Decryption failed:", err);
-      loginBtn.style.display = "block";
-      signoutBtn.style.display = "none";
-      status.textContent = "⚠️ Decryption failed.";
+      ui.status.textContent = "⚠️ Decryption failed.";
+      await updateLoginUI();
     }
   })();
 
   async function fetchNotifications(token) {
     try {
       const res = await fetch("https://api.github.com/notifications", {
-        headers: { Authorization: `token ${token}` }
+        headers: { Authorization: `token ${token}` },
       });
 
       if (!res.ok) {
         if (res.status === 401) {
           console.warn("Access token expired or revoked.");
-          status.textContent = "🔐 Token expired. Please login again.";
-          loginBtn.style.display = "block";
-          signoutBtn.style.display = "none";
+          ui.status.textContent = "🔐 Token expired. Please login again.";
           await chrome.storage.local.remove("encryptedToken");
-          await chrome.storage.session.remove("githubCryptoKey");
+          await clearKey();
+          await updateLoginUI();
         } else {
-          status.textContent = `⚠️ Failed to fetch notifications (${res.status})`;
+          ui.status.textContent = `⚠️ Failed to fetch notifications (${res.status})`;
         }
         return;
       }
 
       const notifications = await res.json();
-      list.innerHTML = "";
+      ui.list.innerHTML = "";
 
       if (notifications.length === 0) {
-        status.textContent = "📭 No notifications.";
+        ui.status.textContent = "📭 No notifications.";
         return;
       }
 
-      status.textContent = "";
+      ui.status.textContent = "";
 
-      notifications.forEach((n) => {
+      for (const n of notifications) {
         const item = document.createElement("div");
         item.className = "notification bg-white p-2 rounded shadow";
 
@@ -129,13 +116,12 @@ document.addEventListener("DOMContentLoaded", () => {
           <a href="${webUrl}" target="_blank" rel="noopener noreferrer">${n.subject.title}</a>
         `;
 
-        list.appendChild(item);
-      });
+        ui.list.appendChild(item);
+      }
     } catch (err) {
       console.error("Fetch error:", err);
-      loginBtn.style.display = "block";
-      signoutBtn.style.display = "none";
-      status.textContent = "❌ Error fetching notifications.";
+      ui.status.textContent = "❌ Error fetching notifications.";
+      await updateLoginUI();
     }
   }
 });
