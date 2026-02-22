@@ -1,13 +1,21 @@
-# GitHub Notifications Browser Extension
+# GitHub Notifications Browser Extension v2.0.0
 
 ## Overview
 The GitHub Notifications Browser Extension surfaces your GitHub notifications in a compact popup. It uses GitHub OAuth to authenticate, fetches notifications from the GitHub API, and keeps your access token encrypted in browser storage so that only the extension can read it.
+
+## What's New in v2
+
+- **Background polling with badge counter:** A periodic alarm fires every 5 minutes and updates the extension badge with the unread notification count.
+- **Mark as read (individual & all):** Each notification has a "✓ Mark read" button, and a "✓ Mark all as read" button appears when there are notifications.
+- **Notification grouping by repository:** Notifications are grouped under collapsible `<details>` elements per repository.
+- **Skeleton loading states:** While fetching, three animated skeleton placeholders appear instead of a blank list.
+- **Keyboard accessibility improvements:** The refresh button is focusable and operable with keyboard. All buttons have `aria-label` attributes.
 
 ## Status
 
 - **Chrome:** ✅ Supported
 - **Brave:** ✅ Supported
-- **Firefox:** ⚠️ _comming soon_
+- **Firefox:** ⚠️ _coming soon_
 
 ## Features
 
@@ -20,8 +28,8 @@ The GitHub Notifications Browser Extension surfaces your GitHub notifications in
 
 The project consists of two parts:
 
-1. **Browser Extension** (Manifest V3) – background service worker, popup UI, and scripts under `extension/`.
-2. **OAuth Service** – a Cloudflare Worker located in `service/` that exchanges OAuth authorization codes for access tokens.
+1. **Browser Extension** (Manifest V3) – background service worker, popup UI, and scripts under `extension/`. The background worker runs a periodic alarm (`github-notifications-poll`) every 5 minutes to poll for new notifications and update the badge count. Notification fetching, mark-as-read, and mark-all-read are all handled via background messages so the popup stays lightweight.
+2. **OAuth Service** – a Cloudflare Worker located in `service/` that exchanges OAuth authorization codes for access tokens, and also proxies mark-read requests (`POST /mark-read`, `POST /mark-all-read`) to the GitHub API.
 
 ## Installation
 
@@ -77,11 +85,11 @@ Contribution Guidelines:
 
 Looking forward to your contributions during Hacktoberfest!
 
-## Comming Soon
+## Coming Soon
 
-- Firefox support
-- Mark notifications as read
-- Advanced filtering options
+- Firefox support (in progress)
+- Notification filters (by type / repo)
+- Dark mode
 
 ## License
 
