@@ -1,18 +1,19 @@
 {
   "manifest_version": 3,
   "name": "GitHub Notifications",
-  "version": "1.0.2",
-  "description": "Provides one-click access to GitHub notifications in a browser popup.",
+  "version": "2.0.0",
+  "description": "Real-time GitHub notifications with background polling, badge counter, mark-as-read, and grouping by repository.",
   "icons": {
     "48": "icons/icon_48.png",
     "128": "icons/icon_128.png"
   },
   "permissions": [
     "storage",
-    "identity"
+    "identity",
+    "alarms"
   ],
   "host_permissions": [
-    "https://api.github.com/notifications",
+    "https://api.github.com/*",
     "https://service.saiprashanth0528.workers.dev/"
   ],
   "background": {

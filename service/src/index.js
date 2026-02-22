@@ -1,26 +1,103 @@
 /**
- * Welcome to Cloudflare Workers! This is your first worker.
+ * GitHub Notifications OAuth + proxy worker (v2)
  *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/
+ * Routes:
+ *   POST /           – exchange OAuth code for access_token
+ *   POST /mark-read  – proxy PATCH /notifications/threads/{threadId}
+ *   POST /mark-all-read – proxy PUT /notifications (mark all as read)
+ *   OPTIONS *        – CORS preflight
  */
+
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+function jsonResponse(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+  });
+}
 
 export default {
   async fetch(request, env) {
-    if (request.method !== "POST") {
-      return new Response("Method Not Allowed", { status: 405 });
+    // CORS preflight
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
 
+    if (request.method !== "POST") {
+      return new Response("Method Not Allowed", {
+        status: 405,
+        headers: CORS_HEADERS,
+      });
+    }
+
+    const url = new URL(request.url);
+
+    // Route: POST /mark-read
+    if (url.pathname === "/mark-read") {
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return jsonResponse({ error: "Invalid request" }, 400);
+      }
+
+      const { threadId, token } = body;
+      if (!threadId) return jsonResponse({ error: "Missing `threadId`" }, 400);
+      if (!token)    return jsonResponse({ error: "Missing `token`" }, 400);
+
+      try {
+        const res = await fetch(
+          `https://api.github.com/notifications/threads/${threadId}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Length": "0",
+            },
+          }
+        );
+        return jsonResponse({ success: res.ok });
+      } catch {
+        return jsonResponse({ error: "Upstream request failed" }, 502);
+      }
+    }
+
+    // Route: POST /mark-all-read
+    if (url.pathname === "/mark-all-read") {
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return jsonResponse({ error: "Invalid request" }, 400);
+      }
+
+      const { token } = body;
+      if (!token) return jsonResponse({ error: "Missing `token`" }, 400);
+
+      try {
+        const res = await fetch("https://api.github.com/notifications", {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Length": "0",
+          },
+        });
+        return jsonResponse({ success: res.ok });
+      } catch {
+        return jsonResponse({ error: "Upstream request failed" }, 502);
+      }
+    }
+
+    // Route: POST / – OAuth code exchange
     try {
       const { code } = await request.json();
       if (!code) {
-        return new Response(JSON.stringify({ error: "Missing `code`" }), {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        });
+        return jsonResponse({ error: "Missing `code`" }, 400);
       }
 
       const response = await fetch("https://github.com/login/oauth/access_token", {
@@ -39,20 +116,12 @@ export default {
       const data = await response.json();
 
       if (data.error) {
-        return new Response(JSON.stringify({ error: data.error_description || "OAuth failed" }), {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        });
+        return jsonResponse({ error: data.error_description || "OAuth failed" }, 400);
       }
 
-      return new Response(JSON.stringify({ access_token: data.access_token }), {
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (err) {
-      return new Response(JSON.stringify({ error: "Invalid request" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return jsonResponse({ access_token: data.access_token });
+    } catch {
+      return jsonResponse({ error: "Invalid request" }, 400);
     }
   },
 };
